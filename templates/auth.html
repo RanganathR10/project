@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>HealthBridge Login</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+<style>
+body {
+  background: linear-gradient(135deg, #1a73e8, #34a853);
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  font-family: 'Segoe UI', Roboto, sans-serif;
+}
+
+.auth-wrapper {
+  position: relative;
+  width: 420px;
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0 12px 25px rgba(0,0,0,0.15);
+  padding: 2.5rem 2rem;
+  transition: all 0.6s ease;
+  animation: slideIn 1s ease;
+}
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(-50px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.auth-wrapper h2 {
+  text-align: center;
+  font-weight: 700;
+  color: #1a73e8;
+}
+
+.form-group label {
+  font-weight: 600;
+  color: #333;
+}
+
+.btn-primary {
+  background: linear-gradient(90deg, #1a73e8, #4285f4);
+  border: none;
+  width: 100%;
+  padding: 0.8rem;
+  border-radius: 8px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+.btn-primary:hover {
+  transform: scale(1.03);
+  box-shadow: 0 5px 15px rgba(26,115,232,0.3);
+}
+
+.switch-link {
+  text-align: center;
+  margin-top: 1rem;
+}
+.switch-link a {
+  color: #1a73e8;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.3s;
+}
+.switch-link a:hover {
+  color: #0d47a1;
+  text-decoration: underline;
+}
+
+.alert {
+  border-radius: 8px;
+  text-align: center;
+}
+
+.bot-icon {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #1a73e8, #34a853);
+  color: white;
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  margin: 0 auto 1rem;
+  font-size: 1.8rem;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+  animation: pulse 2s infinite;
+}
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+/* Password input group styles */
+.password-group {
+  position: relative;
+}
+
+.password-toggle {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #666;
+  cursor: pointer;
+  padding: 5px;
+}
+
+.password-toggle:hover {
+  color: #333;
+}
+
+.password-feedback {
+  font-size: 0.8rem;
+  margin-top: 0.25rem;
+}
+
+.password-valid {
+  color: #28a745;
+}
+
+.password-invalid {
+  color: #dc3545;
+}
+
+.password-requirements {
+  font-size: 0.75rem;
+  color: #6c757d;
+  margin-top: 0.5rem;
+}
+</style>
+</head>
+<body>
+  <div class="auth-wrapper">
+    <div class="bot-icon"><i class="fas fa-robot"></i></div>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, msg in messages %}
+          <div class="alert alert-{{ category }} mt-2">{{ msg }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    {% if mode == 'signup' %}
+    <h2>Create Account</h2>
+    <form method="POST" action="/signup" id="signupForm">
+      <div class="form-group mt-3">
+        <label>Username</label>
+        <input type="text" class="form-control" name="username" required>
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <div class="password-group">
+          <input type="password" class="form-control" name="password" id="password" required 
+                 pattern="^(?=.*[0-9!@#$%^&*()_+\-=\[\]{};':\|,.\?]).{8,}$"
+                 title="Must be at least 8 characters long and contain at least one number or symbol">
+          <button type="button" class="password-toggle" id="togglePassword">
+            <i class="fas fa-eye"></i>
+          </button>
+        </div>
+        <div class="password-feedback" id="passwordFeedback"></div>
+        <div class="password-requirements">
+          Must be at least 8 characters with at least one number or symbol
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Confirm Password</label>
+        <div class="password-group">
+          <input type="password" class="form-control" name="confirm" id="confirmPassword" required>
+          <button type="button" class="password-toggle" id="toggleConfirmPassword">
+            <i class="fas fa-eye"></i>
+          </button>
+        </div>
+        <div class="password-feedback" id="confirmFeedback"></div>
+      </div>
+      <button type="submit" class="btn btn-primary mt-3" id="submitBtn">Sign Up</button>
+    </form>
+    <div class="switch-link">Already have an account? <a href="/login">Login</a></div>
+
+    {% else %}
+    <h2>Login</h2>
+    <form method="POST" action="/login">
+      <div class="form-group mt-3">
+        <label>Username</label>
+        <input type="text" class="form-control" name="username" required>
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <div class="password-group">
+          <input type="password" class="form-control" name="password" id="loginPassword" required>
+          <button type="button" class="password-toggle" id="toggleLoginPassword">
+            <i class="fas fa-eye"></i>
+          </button>
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary mt-3">Login</button>
+    </form>
+    <div class="switch-link">New here? <a href="/signup">Create an account</a></div>
+    {% endif %}
+  </div>
+
+  <script>
+    // Password visibility toggle
+    function setupPasswordToggle(toggleId, passwordId) {
+      const toggle = document.getElementById(toggleId);
+      const password = document.getElementById(passwordId);
+      
+      toggle.addEventListener('click', function() {
+        const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+        password.setAttribute('type', type);
+        this.innerHTML = type === 'password' ? '<i class="fas fa-eye"></i>' : '<i class="fas fa-eye-slash"></i>';
+      });
+    }
+
+    // Password validation for signup form
+    function validatePassword() {
+      const password = document.getElementById('password');
+      const confirm = document.getElementById('confirmPassword');
+      const feedback = document.getElementById('passwordFeedback');
+      const confirmFeedback = document.getElementById('confirmFeedback');
+      const submitBtn = document.getElementById('submitBtn');
+      
+      const passwordValue = password.value;
+      const confirmValue = confirm.value;
+      
+      // Check password requirements
+      const hasMinLength = passwordValue.length >= 8;
+      const hasSpecialChar = /[0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(passwordValue);
+      const isValid = hasMinLength && hasSpecialChar;
+      
+      // Update password feedback
+      if (passwordValue === '') {
+        feedback.textContent = '';
+        feedback.className = 'password-feedback';
+      } else if (isValid) {
+        feedback.textContent = '✓ Password meets requirements';
+        feedback.className = 'password-feedback password-valid';
+      } else {
+        feedback.textContent = '✗ Must be 8+ characters with a number or symbol';
+        feedback.className = 'password-feedback password-invalid';
+      }
+      
+      // Update confirm password feedback
+      if (confirmValue === '') {
+        confirmFeedback.textContent = '';
+        confirmFeedback.className = 'password-feedback';
+      } else if (confirmValue === passwordValue && passwordValue !== '') {
+        confirmFeedback.textContent = '✓ Passwords match';
+        confirmFeedback.className = 'password-feedback password-valid';
+      } else if (passwordValue !== '') {
+        confirmFeedback.textContent = '✗ Passwords do not match';
+        confirmFeedback.className = 'password-feedback password-invalid';
+      }
+      
+      // Enable/disable submit button
+      submitBtn.disabled = !(isValid && passwordValue === confirmValue && passwordValue !== '');
+    }
+
+    // Initialize when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+      // Setup password toggles
+      if (document.getElementById('togglePassword')) {
+        setupPasswordToggle('togglePassword', 'password');
+        setupPasswordToggle('toggleConfirmPassword', 'confirmPassword');
+        
+        // Add validation listeners for signup form
+        document.getElementById('password').addEventListener('input', validatePassword);
+        document.getElementById('confirmPassword').addEventListener('input', validatePassword);
+        
+        // Initial validation
+        validatePassword();
+      }
+      
+      // Setup login password toggle
+      if (document.getElementById('toggleLoginPassword')) {
+        setupPasswordToggle('toggleLoginPassword', 'loginPassword');
+      }
+    });
+  </script>
+</body>
+</html>
